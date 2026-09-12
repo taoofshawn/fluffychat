@@ -28,6 +28,11 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Install NASM (required by webcrypto's BoringSSL build hook)
+        run: |
+          choco install nasm -y
+          Add-Content $env:GITHUB_PATH "C:\Program Files\NASM"
+
       - name: Enable Windows desktop support
         run: flutter config --enable-windows-desktop
 
