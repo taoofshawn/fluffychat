@@ -13,7 +13,9 @@ on:
 
 jobs:
   build_windows:
-    runs-on: windows-latest
+    # Pinned to windows-2022: windows-latest (VS 18 / MSVC 14.51) hard-errors on
+    # local_auth_windows 2.0.1's deprecated <experimental/coroutine> usage.
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v7
 
