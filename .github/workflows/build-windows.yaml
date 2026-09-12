@@ -44,6 +44,20 @@ jobs:
       - name: Build Windows release
         run: flutter build windows --release -v
 
+      - name: Bundle native assets DLLs next to the exe
+        run: |
+          Copy-Item build\native_assets\windows\*.dll build\windows\x64\runner\Release\ -Force
+          Get-ChildItem build\windows\x64\runner\Release\*.dll | Select-Object -ExpandProperty Name
+
+      - name: Verify required native assets are bundled
+        run: |
+          foreach ($f in 'sqlcipher.dll','webcrypto.dll') {
+            if (-not (Test-Path "build\windows\x64\runner\Release\$f")) {
+              throw "Missing required native asset: $f"
+            }
+          }
+          Write-Host "All required native assets present."
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
