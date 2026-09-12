@@ -1,0 +1,45 @@
+# Local addition: builds the Windows desktop app and uploads it as a workflow
+# artifact. Modeled after .github/workflows/release.yaml (build_linux job).
+# Runs on demand from the GitHub "Actions" tab, or on pushes to main/master.
+
+name: Build Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build_windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Flutter (version pinned in .tool_versions.yaml)
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .tool_versions.yaml
+          cache: true
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Enable Windows desktop support
+        run: flutter config --enable-windows-desktop
+
+      - name: Flutter doctor
+        run: flutter doctor -v
+
+      - run: flutter pub get
+
+      - name: Build Windows release
+        run: flutter build windows --release
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: fluffychat-windows-x64
+          path: build/windows/x64/runner/Release/
+          if-no-files-found: error
